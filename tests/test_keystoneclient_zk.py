@@ -33,4 +33,5 @@ class KcMasterZKTestCase(test_keystoneclient.KcMasterTestCase):
         client.connect()
         if 'keystone' in client.get_children('/'):
             client.delete_recursive('/keystone')
+        client.close()
         super(KcMasterZKTestCase, self).setUp()

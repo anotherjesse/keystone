@@ -161,7 +161,7 @@ class Identity(kvs.Base, identity.Driver):
         return self._list('tenant', tenant_id, 'user', user_id, 'role')
 
     def add_role_to_user_and_tenant(self, user_id, tenant_id, role_id):
-        self._create('tenant', tenant_id, 'user', user_id, 'role', role_id)
+        self._create('tenant', tenant_id, 'user', user_id, 'role', role_id, None)
 
     def remove_role_from_user_and_tenant(self, user_id, tenant_id, role_id):
         self._delete('tenant', tenant_id, 'user', user_id, 'role', role_id)
@@ -173,7 +173,6 @@ class Identity(kvs.Base, identity.Driver):
         if self.get_user_by_name(user['name']):
             raise Exception('Duplicate name')
         user = _ensure_hashed_password(user)
-        print user
         self._create('user', user_id, user)
         return user
 
@@ -222,6 +221,14 @@ class Identity(kvs.Base, identity.Driver):
         return metadata
 
     def update_metadata(self, user_id, tenant_id, metadata):
+        roles = metadata.get('roles', [])
+        # we seem to be storing roles in metadata as well as as a first class
+        for role_id in roles:
+            self.add_role_to_user_and_tenant(user_id, tenant_id, role_id)
+        for role_id in self.get_roles_for_user_and_tenant(user_id, tenant_id):
+            if not role_id in roles:
+                self.remove_role_from_user_and_tenant(user_id, tenant_id, role_id)
+
         self._set('tenant', tenant_id, 'user', user_id, 'metadata', metadata)
         return metadata
 
