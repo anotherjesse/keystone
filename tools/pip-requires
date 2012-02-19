@@ -16,6 +16,9 @@ prettytable
 # Optional backend: Memcache
 python-memcached # increases performance of token validation calls
 
+# Optional backend: zookeeper
+pykeeper
+
 # Development
 Sphinx>=1.1.2 # required to build documentation
 coverage # computes code coverage percentages
